@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="ru"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>План проекта — Фестиваль уличной еды</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      background: #dcdcdc;
+      color: #444;
+    }
+
+    .page {
+      padding: 20px;
+    }
+
+    .wrap {
+      max-width: 1360px;
+      margin: 0 auto;
+      background: #efefef;
+      border: 1px solid #bfbfbf;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px 8px;
+      background: #ececec;
+      border-bottom: 1px solid #cfcfcf;
+    }
+
+    .filter-input {
+      width: 170px;
+      height: 30px;
+      border: 1px solid #bdbdbd;
+      border-radius: 4px;
+      outline: none;
+      padding: 0 10px;
+      color: #555;
+      background: #f7f7f7;
+    }
+
+    .toolbar-btn {
+      width: 24px;
+      height: 24px;
+      border: 1px solid #bdbdbd;
+      border-radius: 3px;
+      background: #f2f2f2;
+      color: #666;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 20px;
+      padding: 0;
+    }
+
+    .toolbar-btn:hover {
+      background: #e8e8e8;
+    }
+
+    .toolbar-title {
+      margin-left: 6px;
+      color: #8b8b8b;
+      font-size: 12px;
+    }
+
+    .table {
+      width: 100%;
+    }
+
+    .header,
+    .row {
+      display: grid;
+      grid-template-columns: 390px 115px 120px 65px 85px 105px 155px 120px;
+      align-items: stretch;
+    }
+
+    .header {
+      background: #ddd7aa;
+      border-bottom: 1px solid #c9c293;
+      color: #666;
+      font-weight: bold;
+      min-height: 26px;
+    }
+
+    .header .cell {
+      padding: 6px 7px;
+      border-right: 1px solid #cfc79c;
+    }
+
+    .row {
+      min-height: 78px;
+      background: #ececec;
+      border-bottom: 1px solid #d9d9d9;
+    }
+
+    .row .cell {
+      border-right: 1px solid #d9d9d9;
+      padding: 6px 8px;
+      display: flex;
+      align-items: center;
+      background: #efefef;
+    }
+
+    .header .cell:last-child,
+    .row .cell:last-child {
+      border-right: none;
+    }
+
+    .center {
+      justify-content: center;
+      text-align: center;
+    }
+
+    .task-cell {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .toggle {
+      width: 15px;
+      height: 15px;
+      border: 1px solid #b7b7b7;
+      border-radius: 2px;
+      background: #e9e9e9;
+      color: #666;
+      font-size: 11px;
+      line-height: 13px;
+      padding: 0;
+      cursor: pointer;
+      flex: 0 0 auto;
+    }
+
+    .toggle:hover {
+      background: #dfdfdf;
+    }
+
+    .toggle.hidden {
+      visibility: hidden;
+    }
+
+    .task-text {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .level-0 .task-text {
+      font-weight: bold;
+      color: #444;
+    }
+
+    .level-1 .task-text {
+      padding-left: 18px;
+      font-weight: normal;
+      color: #4d4d4d;
+    }
+
+    .level-2 .task-text {
+      padding-left: 36px;
+      font-weight: normal;
+      color: #555;
+    }
+
+    .date-chip {
+      background: #e9dd75;
+      padding: 2px 4px;
+      border-radius: 2px;
+      color: #555;
+      display: inline-block;
+      min-width: 60px;
+      text-align: center;
+    }
+
+    .muted {
+      color: #777;
+    }
+
+    .status-link {
+      color: #1e6dd8;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .status-link:hover {
+      text-decoration: underline;
+    }
+
+    .progress-wrap {
+      justify-content: center;
+      position: relative;
+    }
+
+    .progress-shell {
+    width: 34px;
+    height: 66px;
+    border-radius: 10px;
+    background: #c6c6c6;
+    border: 1px solid #a8a8a8;
+    position: relative;
+    padding: 3px;
+    box-shadow: inset 0 1px 1px rgba(255,255,255,0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    }
+
+    .progress-fill {
+    position: absolute;
+    left: 3px;
+    right: 3px;
+    bottom: 3px;
+    border-radius: 7px;
+    background: #9c9c9c;
+    border: 1px solid #8b8b8b;
+    min-height: 7px;
+    box-shadow: inset 0 1px 1px rgba(255,255,255,0.2);
+    }
+
+    .progress-label {
+    position: relative;
+    z-index: 2;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: bold;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.45);
+    white-space: nowrap;
+    }
+
+    .hidden-row {
+      display: none;
+    }
+
+    .footer-note {
+      padding: 10px 12px 14px;
+      color: #777;
+      font-size: 11px;
+      background: #ececec;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="wrap">
+      <div class="toolbar">
+        <input id="searchInput" class="filter-input" type="text" placeholder="Фильтр...">
+        <button id="expandAllBtn" class="toolbar-btn" title="Раскрыть всё">+</button>
+        <button id="collapseAllBtn" class="toolbar-btn" title="Свернуть всё">−</button>
+        <div class="toolbar-title">План проекта</div>
+      </div>
+
+      <div class="table">
+        <div class="header">
+          <div class="cell">Наименование</div>
+          <div class="cell">Дата начала</div>
+          <div class="cell">Дата окончания</div>
+          <div class="cell center">Дней</div>
+          <div class="cell center">Часы</div>
+          <div class="cell center">Прогресс</div>
+          <div class="cell">Ответственный</div>
+          <div class="cell">Статус</div>
+        </div>
+
+        <!-- Подготовительный этап -->
+        <div class="row level-0" data-id="prep" data-parent="" data-search="подготовительный этап концепция бюджет договоры команда роли" style="">
+          <div class="cell">
+            <div class="task-cell">
+              <button class="toggle" data-toggle="prep">−</button>
+              <div class="task-text">Подготовительный этап</div>
+            </div>
+          </div>
+          <div class="cell"><span class="date-chip">03.03.2026</span></div>
+          <div class="cell"><span class="date-chip">01.04.2026</span></div>
+          <div class="cell center">29</div>
+          <div class="cell center">—</div>
+          <div class="cell progress-wrap">
+            <div class="progress-shell">
+              <div class="progress-fill" style="height: 90%;"></div>
+              <div class="progress-label">100%</div>
+            </div>
+          </div>
+          <div class="cell">Темченко Н.С</div>
+          <div class="cell"><a class="status-link">Завершено</a></div>
+        </div>
+
+        <div class="row level-1" data-id="prep-1" data-parent="prep" data-search="утверждение концепции бюджета иванов" style="">
+          <div class="cell">
+            <div class="task-cell">
+              <button class="toggle hidden">−</button>
+              <div class="task-text">Утверждение концепции и бюджета</div>
+            </div>
+          </div>
+          <div class="cell"><span class="date-chip">03.03.2026</span></div>
+          <div class="cell"><span class="date-chip">03.03.2026</span></div>
+          <div class="cell center">1</div>
+          <div class="cell center">—</div>
+          <div class="cell progress-wrap">
+            <div class="progress-shell">
+              <div class="progress-fill" style="height: 90%;"></div>
+              <div class="progress-label">100%</div>
+            </div>
+          </div>
+          <div class="cell">Темченко Н.С</div>
+          <div class="cell"><a class="status-link">Завершено</a></div>
+        </div>
+
+        <div class="row level-1" data-id="prep-2" data-parent="prep" data-search="договоры площадка подрядчики петров" style="">
+          <div class="cell">
+            <div class="task-cell">
+              <button class="toggle hidden">−</button>
+              <div class="task-text">Заключение договоров с площадкой и подрядчиками</div>
+            </div>
+          </div>
+          <div class="cell"><span class="date-chip">03.03.2026</span></div>
+          <div class="cell"><span class="date-chip">01.04.2026</span></div>
+          <div class="cell center">29</div>
+          <div class="cell center">—</div>
+          <div class="cell progress-wrap">
+            <div class="progress-shell">
+              <div class="progress-fill" style="height: 90%;"></div>
+              <div class="progress-label">100%</div>
+            </div>
+          </div>
+          <div class="cell">Темченко Н.С.</div>
+          <div class="cell"><a class="status-link">Завершено</a></div>
+        </div>
+
+        <div class="row level-1" data-id="prep-3" data-parent="prep" data-search="команда роли распределены темченко" style="">
+          <div class="cell">
+            <div class="task-cell">
+              <button class="toggle hidden">−</button>
+              <div class="task-text">Команда собрана и роли распределены</div>
+            </div>
+          </div>
+          <div class="cell"><span class="date-chip">05.03.2026</span></div>
+          <div class="cell"><span class="date-chip">09.03.2026</span></div>
+          <div class="cell center">4</div>
+          <div class="cell center">—</div>
+          <div class="cell progress-wrap">
+            <div class="progress-shell">
+              <div class="progress-fill" style="height: 90%;"></div>
+              <div class="progress-label">100%</div>
+            </div>
+          </div>
+          <div class="cell">Темченко Н.С</div>
+          <div class="cell"><a class="status-link">Завершено</a></div>
+        </div>
+
+        <!-- Маркетинг и участники -->
+        <div class="row level-0" data-id="marketing" data-parent="" data-search="маркетинг участники фудтраки реклама афиша соцсети" style="">
+          <div class="cell">
+            <div class="task-cell">
+              <button class="toggle" data-toggle="marketing">−</button>
+              <div class="task-text">Маркетинг и участники</div>
+            </div>
+          </div>
+          <div class="cell"><span class="date-chip">01.04.2026</span></div>
+          <div class="cell"><span class="date-chip">01.05.2026</span></div>
+          <div class="cell center">30</div>
+          <div class="cell center">—</div>
+          <div class="cell progress-wrap">
+            <div class="progress-shell">
+              <div class="progress-fill" style="height: 40%;"></div>
+              <div class="progress-label">40%</div>
+            </div>
+          </div>
+          <div class="cell">Юдин И.Г</div>
+          <div class="cell"><a class="status-link">В работе</a></div>
+        </div>
+
+        <div class="row level-1" data-id="marketing-1" data-parent="marketing" data-search="запуск маркетинговой кампании маркетинг отдел" style="">
+          <div class="cell">
+            <div class="task-cell">
+              <button class="toggle hidden">−</button>
+              <div class="task-text">Запуск маркетинговой кампании</div>
+            </div>
+          </div>
+          <div class="cell"><span class="date-chip">01.04.2026</span></div>
+          <div class="cell"><span class="date-chip">01.05.2026</span></div>
+          <div class="cell center">30</div>
+          <div class="cell center">—</div>
+          <div class="cell progress-wrap">
+            <div class="progress-shell">
+              <div class="progress-fill" style="height: 35%;"></div>
+              <div class="progress-label">35%</div>
+            </div>
+          </div>
+          <div class="cell">Ряполов С.</div>
+          <div class="cell"><a class="status-link">В работе</a></div>
+        </div>
+
+        <div class="row level-1" data-id="marketing-2" data-parent="marketing" data-search="набор участников 30 оргкомитет" style="">
+          <div class="cell">
+            <div class="task-cell">
+              <button class="toggle hidden">−</button>
+              <div class="task-text">Набор участников (≥30)</div>
+            </div>
+          </div>
+          <div class="cell"><span class="date-chip">01.04.2026</span></div>
+          <div class="cell"><span class="date-chip">01.05.2026</span></div>
+          <div class="cell center">30</div>
+          <div class="cell center">—</div>
+          <div class="cell progress-wrap">
+            <div class="progress-shell">
+              <div class="progress-fill" style="height: 45%;"></div>
+              <div class="progress-label">45%</div>
+            </div>
+          </div>
+          <div class="cell">Юдин И.Г.</div>
+          <div class="cell"><a class="status-link">В работе</a></div>
+        </div>
+
+        <div class="row level-1" data-id="marketing-3" data-parent="marketing" data-search="открыть набор фудтраков участников гарькуша" style="">
+          <div class="cell">
+            <div class="task-cell">
+              <button class="toggle hidden">−</button>
+              <div class="task-text">Открыть набор фудтраков и участников</div>
+            </div>
+          </div>
+          <div class="cell"><span class="date-chip">10.03.2026</span></div>
+          <div class="cell"><span class="date-chip">01.04.2026</span></div>
+          <div class="cell center">22</div>
+          <div class="cell center">—</div>
+          <div class="cell progress-wrap">
+            <div class="progress-shell">
+              <div class="progress-fill" style="height: 50%;"></div>
+              <div class="progress-label">50%</div>
+            </div>
+          </div>
+          <div class="cell">Гарькуша Д.Е</div>
+          <div class="cell"><a class="status-link">В работе</a></div>
+        </div>
+
+        <div class="row level-1" data-id="marketing-4" data-parent="marketing" data-search="сделать афишу визуальный стиль касапов" style="">
+          <div class="cell">
+            <div class="task-cell">
+              <button class="toggle hidden">−</button>
+              <div class="task-text">Сделать афишу и визуальный стиль</div>
+            </div>
+          </div>
+          <div class="cell"><span class="date-chip">05.04.2026</span></div>
+          <div class="cell"><span class="date-chip">15.04.2026</span></div>
+          <div class="cell center">10</div>
+          <div class="cell center">—</div>
+          <div class="cell progress-wrap">
+            <div class="progress-shell">
+              <div class="progress-fill" style="height: 50%;"></div>
+              <div class="progress-label">50%</div>
+            </div>
+          </div>
+          <div class="cell">Касапов А.В</div>
+          <div class="cell"><a class="status-link">В работе</a></div>
+        </div>
+
+        <div class="row level-1" data-id="marketing-5" data-parent="marketing" data-search="подготовить шаблоны постов касапов" style="">
+          <div class="cell">
+            <div class="task-cell">
+              <button class="toggle hidden">−</button>
+              <div class="task-text">Подготовить шаблоны постов и сторис</div>
+            </div>
+          </div>
+          <div class="cell"><span class="date-chip">10.04.2026</span></div>
+          <div class="cell"><span class="date-chip">20.04.2026</span></div>
+          <div class="cell center">10</div>
+          <div class="cell center">—</div>
+          <div class="cell progress-wrap">
+            <div class="progress-shell">
+              <div class="progress-fill" style="height: 40%;"></div>
+              <div class="progress-label">40%</div>
+            </div>
+          </div>
+          <div class="cell">Касапов А.В</div>
+          <div class="cell"><a class="status-link">В работе</a></div>
+        </div>
+
+        <!-- Партнеры и спонсоры -->
+        <div class="row level-0" data-id="partners" data-parent="" data-search="партнеры спонсоры предложения финальная сверка" style="">
+          <div class="cell">
+            <div class="task-cell">
+              <button class="toggle" data-toggle="partners">−</button>
+              <div class="task-text">Партнёры и спонсоры</div>
+            </div>
+          </div>
+          <div class="cell"><span class="date-chip">10.03.2026</span></div>
+          <div class="cell"><span class="date-chip">25.04.2026</span></div>
+          <div class="cell center">46</div>
+          <div class="cell center">—</div>
+          <div class="cell progress-wrap">
+            <div class="progress-shell">
+              <div class="progress-fill" style="height: 45%;"></div>
+              <div class="progress-label">45%</div>
+            </div>
+          </div>
+          <div class="cell">Бутченко А.А</div>
+          <div class="cell"><a class="status-link">В работе</a></div>
+        </div>
+
+        <div class="row level-1" data-id="partners-1" data-parent="partners" data-search="список потенциальных партнеров и спонсоров" style="">
+          <div class="cell">
+            <div class="task-cell">
+              <button class="toggle hidden">−</button>
+              <div class="task-text">Список потенциальных партнёров и спонсоров</div>
+            </div>
+          </div>
+          <div class="cell"><span class="date-chip">10.03.2026</span></div>
+          <div class="cell"><span class="date-chip">16.03.2026</span></div>
+          <div class="cell center">6</div>
+          <div class="cell center">—</div>
+          <div class="cell progress-wrap">
+            <div class="progress-shell">
+              <div class="progress-fill" style="height: 70%;"></div>
+              <div class="progress-label">70%</div>
+            </div>
+          </div>
+          <div class="cell">Бутченко А.А</div>
+          <div class="cell"><a class="status-link">В работе</a></div>
+        </div>
+
+        <div class="row level-1" data-id="partners-2" data-parent="partners" data-search="собрать пакет предложений для спонсоров" style="">
+          <div class="cell">
+            <div class="task-cell">
+              <button class="toggle hidden">−</button>
+              <div class="task-text">Собрать пакет предложений для спонсоров</div>
+            </div>
+          </div>
+          <div class="cell"><span class="date-chip">16.03.2026</span></div>
+          <div class="cell"><span class="date-chip">28.03.2026</span></div>
+          <div class="cell center">12</div>
+          <div class="cell center">—</div>
+          <div class="cell progress-wrap">
+            <div class="progress-shell">
+              <div class="progress-fill" style="height: 55%;"></div>
+              <div class="progress-label">55%</div>
+            </div>
+          </div>
+          <div class="cell">Бутченко А.А</div>
+          <div class="cell"><a class="status-link">В работе</a></div>
+        </div>
+
+        <div class="row level-1" data-id="partners-3" data-parent="partners" data-search="провести финальную сверку условий партнеров" style="">
+          <div class="cell">
+            <div class="task-cell">
+              <button class="toggle hidden">−</button>
+              <div class="task-text">Провести финальную сверку условий партнёров</div>
+            </div>
+          </div>
+          <div class="cell"><span class="date-chip">15.04.2026</span></div>
+          <div class="cell"><span class="date-chip">25.04.2026</span></div>
+          <div class="cell center">10</div>
+          <div class="cell center">—</div>
+          <div class="cell progress-wrap">
+            <div class="progress-shell">
+              <div class="progress-fill" style="height: 35%;"></div>
+              <div class="progress-label">35%</div>
+            </div>
+          </div>
+          <div class="cell">Бутченко А.А</div>
+          <div class="cell"><a class="status-link">В работе</a></div>
+        </div>
+
+        <!-- Техника и площадка -->
+        <div class="row level-0" data-id="tech" data-parent="" data-search="подготовка площадки техника электрика безопасность монтаж" style="">
+          <div class="cell">
+            <div class="task-cell">
+              <button class="toggle" data-toggle="tech">−</button>
+              <div class="task-text">Подготовка площадки</div>
+            </div>
+          </div>
+          <div class="cell"><span class="date-chip">01.05.2026</span></div>
+          <div class="cell"><span class="date-chip">07.05.2026</span></div>
+          <div class="cell center">6</div>
+          <div class="cell center">—</div>
+          <div class="cell progress-wrap">
+            <div class="progress-shell">
+              <div class="progress-fill" style="height: 20%;"></div>
+              <div class="progress-label">20%</div>
+            </div>
+          </div>
+          <div class="cell">Болотов В.В.</div>
+          <div class="cell"><a class="status-link">Не начато</a></div>
+        </div>
+
+        <div class="row level-1" data-id="tech-1" data-parent="tech" data-search="план электропитания схемы размещения тахиров" style="">
+          <div class="cell">
+            <div class="task-cell">
+              <button class="toggle hidden">−</button>
+              <div class="task-text">План электропитания и схемы размещения</div>
+            </div>
+          </div>
+          <div class="cell"><span class="date-chip">01.05.2026</span></div>
+          <div class="cell"><span class="date-chip">05.05.2026</span></div>
+          <div class="cell center">4</div>
+          <div class="cell center">—</div>
+          <div class="cell progress-wrap">
+            <div class="progress-shell">
+              <div class="progress-fill" style="height: 10%;"></div>
+              <div class="progress-label">10%</div>
+            </div>
+          </div>
+          <div class="cell">Тахиров Саид</div>
+          <div class="cell"><a class="status-link">Не начато</a></div>
+        </div>
+
+        <div class="row level-1" data-id="tech-2" data-parent="tech" data-search="проверить схему размещения фуд-траков гарькуша" style="">
+          <div class="cell">
+            <div class="task-cell">
+              <button class="toggle hidden">−</button>
+              <div class="task-text">Проверить схему размещения фуд-траков</div>
+            </div>
+          </div>
+          <div class="cell"><span class="date-chip">02.05.2026</span></div>
+          <div class="cell"><span class="date-chip">06.05.2026</span></div>
+          <div class="cell center">4</div>
+          <div class="cell center">—</div>
+          <div class="cell progress-wrap">
+            <div class="progress-shell">
+              <div class="progress-fill" style="height: 15%;"></div>
+              <div class="progress-label">15%</div>
+            </div>
+          </div>
+          <div class="cell">Гарькуша Д.Е</div>
+          <div class="cell"><a class="status-link">Не начато</a></div>
+        </div>
+
+        <div class="row level-1" data-id="tech-3" data-parent="tech" data-search="составить график заезда фуд-траков гарькуша" style="">
+          <div class="cell">
+            <div class="task-cell">
+              <button class="toggle hidden">−</button>
+              <div class="task-text">Составить график заезда фуд-траков</div>
+            </div>
+          </div>
+          <div class="cell"><span class="date-chip">03.05.2026</span></div>
+          <div class="cell"><span class="date-chip">06.05.2026</span></div>
+          <div class="cell center">3</div>
+          <div class="cell center">—</div>
+          <div class="cell progress-wrap">
+            <div class="progress-shell">
+              <div class="progress-fill" style="height: 5%;"></div>
+              <div class="progress-label">5%</div>
+            </div>
+          </div>
+          <div class="cell">Гарькуша Д.Е</div>
+          <div class="cell"><a class="status-link">Не начато</a></div>
+        </div>
+
+        <!-- Безопасность -->
+        <div class="row level-0" data-id="security" data-parent="" data-search="безопасность медицинский пост риски аудит инструктаж" style="">
+          <div class="cell">
+            <div class="task-cell">
+              <button class="toggle" data-toggle="security">−</button>
+              <div class="task-text">Безопасность и контроль</div>
+            </div>
+          </div>
+          <div class="cell"><span class="date-chip">20.04.2026</span></div>
+          <div class="cell"><span class="date-chip">07.05.2026</span></div>
+          <div class="cell center">17</div>
+          <div class="cell center">—</div>
+          <div class="cell progress-wrap">
+            <div class="progress-shell">
+              <div class="progress-fill" style="height: 25%;"></div>
+              <div class="progress-label">25%</div>
+            </div>
+          </div>
+          <div class="cell">Робаккидзе А.В</div>
+          <div class="cell"><a class="status-link">В работе</a></div>
+        </div>
+
+        <div class="row level-1" data-id="security-1" data-parent="security" data-search="план безопасности медицинский пост" style="">
+          <div class="cell">
+            <div class="task-cell">
+              <button class="toggle hidden">−</button>
+              <div class="task-text">План безопасности и медицинский пост</div>
+            </div>
+          </div>
+          <div class="cell"><span class="date-chip">20.04.2026</span></div>
+          <div class="cell"><span class="date-chip">30.04.2026</span></div>
+          <div class="cell center">10</div>
+          <div class="cell center">—</div>
+          <div class="cell progress-wrap">
+            <div class="progress-shell">
+              <div class="progress-fill" style="height: 30%;"></div>
+              <div class="progress-label">30%</div>
+            </div>
+          </div>
+          <div class="cell">Робаккидзе А.В</div>
+          <div class="cell"><a class="status-link">В работе</a></div>
+        </div>
+
+        <div class="row level-1" data-id="security-2" data-parent="security" data-search="провести аудит рисков на площадке" style="">
+          <div class="cell">
+            <div class="task-cell">
+              <button class="toggle hidden">−</button>
+              <div class="task-text">Провести аудит рисков на площадке</div>
+            </div>
+          </div>
+          <div class="cell"><span class="date-chip">25.04.2026</span></div>
+          <div class="cell"><span class="date-chip">05.05.2026</span></div>
+          <div class="cell center">10</div>
+          <div class="cell center">—</div>
+          <div class="cell progress-wrap">
+            <div class="progress-shell">
+              <div class="progress-fill" style="height: 20%;"></div>
+              <div class="progress-label">20%</div>
+            </div>
+          </div>
+          <div class="cell">Робаккидзе А.В</div>
+          <div class="cell"><a class="status-link">В работе</a></div>
+        </div>
+
+        <div class="row level-1" data-id="security-3" data-parent="security" data-search="инструктаж команды по безопасности" style="">
+          <div class="cell">
+            <div class="task-cell">
+              <button class="toggle hidden">−</button>
+              <div class="task-text">Провести инструктаж команды по безопасности</div>
+            </div>
+          </div>
+          <div class="cell"><span class="date-chip">06.05.2026</span></div>
+          <div class="cell"><span class="date-chip">07.05.2026</span></div>
+          <div class="cell center">1</div>
+          <div class="cell center">—</div>
+          <div class="cell progress-wrap">
+            <div class="progress-shell">
+              <div class="progress-fill" style="height: 0%;"></div>
+              <div class="progress-label">0%</div>
+            </div>
+          </div>
+          <div class="cell">Робаккидзе А.В</div>
+          <div class="cell"><a class="status-link">Ожидание</a></div>
+        </div>
+
+        <!-- Проведение -->
+        <div class="row level-0" data-id="festival" data-parent="" data-search="проведение фестиваля программа дни мероприятия" style="">
+          <div class="cell">
+            <div class="task-cell">
+              <button class="toggle" data-toggle="festival">−</button>
+              <div class="task-text">Проведение фестиваля</div>
+            </div>
+          </div>
+          <div class="cell"><span class="date-chip">08.05.2026</span></div>
+          <div class="cell"><span class="date-chip">11.05.2026</span></div>
+          <div class="cell center">3</div>
+          <div class="cell center">—</div>
+          <div class="cell progress-wrap">
+            <div class="progress-shell">
+              <div class="progress-fill" style="height: 0%;"></div>
+              <div class="progress-label">0%</div>
+            </div>
+          </div>
+          <div class="cell">Оргкомитет</div>
+          <div class="cell"><a class="status-link">Ожидание</a></div>
+        </div>
+
+        <div class="row level-1" data-id="festival-1" data-parent="festival" data-search="развлекательная программа фестиваля" style="">
+          <div class="cell">
+            <div class="task-cell">
+              <button class="toggle hidden">−</button>
+              <div class="task-text">Развлекательная программа на 3 дня</div>
+            </div>
+          </div>
+          <div class="cell"><span class="date-chip">08.05.2026</span></div>
+          <div class="cell"><span class="date-chip">11.05.2026</span></div>
+          <div class="cell center">3</div>
+          <div class="cell center">—</div>
+          <div class="cell progress-wrap">
+            <div class="progress-shell">
+              <div class="progress-fill" style="height: 0%;"></div>
+              <div class="progress-label">0%</div>
+            </div>
+          </div>
+          <div class="cell">Юдин И.Г.</div>
+          <div class="cell"><a class="status-link">Ожидание</a></div>
+        </div>
+
+        <!-- Завершение -->
+        <div class="row level-0" data-id="close" data-parent="" data-search="завершение проекта демонтаж отчет финансы итоги" style="">
+          <div class="cell">
+            <div class="task-cell">
+              <button class="toggle" data-toggle="close">−</button>
+              <div class="task-text">Завершение проекта</div>
+            </div>
+          </div>
+          <div class="cell"><span class="date-chip">12.05.2026</span></div>
+          <div class="cell"><span class="date-chip">01.06.2026</span></div>
+          <div class="cell center">20</div>
+          <div class="cell center">—</div>
+          <div class="cell progress-wrap">
+            <div class="progress-shell">
+              <div class="progress-fill" style="height: 0%;"></div>
+              <div class="progress-label">0%</div>
+            </div>
+          </div>
+          <div class="cell">Полупанов И.</div>
+          <div class="cell"><a class="status-link">Ожидание</a></div>
+        </div>
+
+        <div class="row level-1" data-id="close-1" data-parent="close" data-search="демонтаж площадки закрытие проекта" style="">
+          <div class="cell">
+            <div class="task-cell">
+              <button class="toggle hidden">−</button>
+              <div class="task-text">Демонтаж площадки и закрытие проекта</div>
+            </div>
+          </div>
+          <div class="cell"><span class="date-chip">12.05.2026</span></div>
+          <div class="cell"><span class="date-chip">12.05.2026</span></div>
+          <div class="cell center">1</div>
+          <div class="cell center">—</div>
+          <div class="cell progress-wrap">
+            <div class="progress-shell">
+              <div class="progress-fill" style="height: 0%;"></div>
+              <div class="progress-label">0%</div>
+            </div>
+          </div>
+          <div class="cell">Болотов В.В.</div>
+          <div class="cell"><a class="status-link">Ожидание</a></div>
+        </div>
+
+        <div class="row level-1" data-id="close-2" data-parent="close" data-search="финансовый отчет подведение итогов" style="">
+          <div class="cell">
+            <div class="task-cell">
+              <button class="toggle hidden">−</button>
+              <div class="task-text">Финансовый отчёт и подведение итогов</div>
+            </div>
+          </div>
+          <div class="cell"><span class="date-chip">13.05.2026</span></div>
+          <div class="cell"><span class="date-chip">01.06.2026</span></div>
+          <div class="cell center">19</div>
+          <div class="cell center">—</div>
+          <div class="cell progress-wrap">
+            <div class="progress-shell">
+              <div class="progress-fill" style="height: 0%;"></div>
+              <div class="progress-label">0%</div>
+            </div>
+          </div>
+          <div class="cell">Полупанов И.</div>
+          <div class="cell"><a class="status-link">Ожидание</a></div>
+        </div>
+      </div>
+
+      <div class="footer-note">
+        Проект: «Фестиваль уличной еды». Можно фильтровать строки, а этапы сворачиваются и разворачиваются.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const rows = Array.from(document.querySelectorAll('.row'));
+    const toggles = Array.from(document.querySelectorAll('[data-toggle]'));
+    const searchInput = document.getElementById('searchInput');
+    const expandAllBtn = document.getElementById('expandAllBtn');
+    const collapseAllBtn = document.getElementById('collapseAllBtn');
+
+    const collapsed = new Set();
+
+    function getChildren(parentId) {
+      return rows.filter(row => row.dataset.parent === parentId);
+    }
+
+    function hideDescendants(parentId) {
+      const children = getChildren(parentId);
+      children.forEach(child => {
+        child.classList.add('hidden-row');
+        hideDescendants(child.dataset.id);
+      });
+    }
+
+    function showImmediateChildren(parentId) {
+      const children = getChildren(parentId);
+      children.forEach(child => {
+        child.classList.remove('hidden-row');
+        if (!collapsed.has(child.dataset.id)) {
+          showImmediateChildren(child.dataset.id);
+        }
+      });
+    }
+
+    function updateTree() {
+    rows.forEach(row => {
+        row.classList.remove('hidden-row');
+    });
+
+    rows.forEach(row => {
+        const id = row.dataset.id;
+        const toggle = document.querySelector(`[data-toggle="${id}"]`);
+        if (toggle) {
+        toggle.textContent = collapsed.has(id) ? '+' : '−';
+        }
+    });
+
+    rows.forEach(row => {
+        const parentId = row.dataset.parent;
+        if (parentId && collapsed.has(parentId)) {
+        row.classList.add('hidden-row');
+        }
+    });
+
+    collapsed.forEach(parentId => {
+        hideDescendants(parentId);
+    });
+    }
+
+    toggles.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.toggle;
+        if (collapsed.has(id)) {
+          collapsed.delete(id);
+        } else {
+          collapsed.add(id);
+        }
+        updateTree();
+        applyFilter();
+      });
+    });
+
+    expandAllBtn.addEventListener('click', () => {
+      collapsed.clear();
+      updateTree();
+      applyFilter();
+    });
+
+    collapseAllBtn.addEventListener('click', () => {
+      rows.forEach(row => {
+        if (!row.dataset.parent) {
+          collapsed.add(row.dataset.id);
+        }
+      });
+      updateTree();
+      applyFilter();
+    });
+
+    function applyFilter() {
+      const term = searchInput.value.trim().toLowerCase();
+
+      if (!term) {
+        rows.forEach(row => row.style.display = '');
+        updateTree();
+        return;
+      }
+
+      rows.forEach(row => row.style.display = 'none');
+
+      rows.forEach(row => {
+        const searchText = (row.dataset.search || '').toLowerCase();
+        const textContent = row.innerText.toLowerCase();
+        if (searchText.includes(term) || textContent.includes(term)) {
+          row.style.display = '';
+          let parentId = row.dataset.parent;
+          while (parentId) {
+            const parentRow = rows.find(r => r.dataset.id === parentId);
+            if (parentRow) {
+              parentRow.style.display = '';
+              collapsed.delete(parentId);
+              parentId = parentRow.dataset.parent;
+            } else {
+              parentId = '';
+            }
+          }
+        }
+      });
+
+      updateTree();
+
+      rows.forEach(row => {
+        if (row.style.display === 'none') return;
+        let parentId = row.dataset.parent;
+        let hiddenByParent = false;
+        while (parentId) {
+          if (collapsed.has(parentId)) {
+            hiddenByParent = true;
+            break;
+          }
+          const parentRow = rows.find(r => r.dataset.id === parentId);
+          parentId = parentRow ? parentRow.dataset.parent : '';
+        }
+        if (hiddenByParent) row.style.display = 'none';
+      });
+    }
+
+    searchInput.addEventListener('input', applyFilter);
+
+    updateTree();
+  </script>
+
+</body></html>
